@@ -23,6 +23,7 @@
               </template>
             </Table>
           </div>
+          <Page :total="total" :model-value="index" :page-size="pageSize" style="margin-top: 20px" />
         </Card>
       </Content>
       <SelfFooter></SelfFooter>
@@ -83,6 +84,10 @@ export default {
   components: {SelfFooter, SelfHeader},
   data() {
     return {
+      // 分页
+      total: 100,
+      index: 10,
+      pageSize: 10,
       // 表格数据
       columns: [
         {

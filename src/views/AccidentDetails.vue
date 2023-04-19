@@ -125,7 +125,7 @@ export default {
 
 <style scoped>
 .detail-info {
-  width: 20%;
+  width: 25%;
   position: absolute;
   text-align: left;
   margin-top: 5%;
@@ -154,6 +154,11 @@ export default {
   margin: 0 auto;
   left: 40%;
   top: 30%;
+}
+
+.detail-info-accident-address:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: #d9d9d9 0px 0px 20px;
 }
 
 .detail-info-accident-right {

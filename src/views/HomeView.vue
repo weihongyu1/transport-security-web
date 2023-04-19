@@ -10,7 +10,6 @@
           <SelfContent></SelfContent>
         </Content>
         <SelfFooter></SelfFooter>
-<!--        <Footer class="layout-footer-center">2023 &copy; 驾乘人员颅脑伤情监测平台</Footer>-->
       </Layout>
     </div>
   </div>

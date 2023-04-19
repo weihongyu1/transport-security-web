@@ -1,18 +1,7 @@
 <template>
   <div>
     <baidu-map :mapStyle="mapStyle" class="map" :center="{lng: lng, lat: lat}" :zoom="10">
-      <bm-marker :position="{lng: lng, lat: lat}" :dragging="true" @click="infoWindow.show = true">
-<!--        <bm-info-window-->
-<!--            :position="{lng: lng, lat: lat}" title="事故地点:"-->
-<!--            :show="infoWindow.show"-->
-<!--            animation="BMAP_ANIMATION_BOUNCE"-->
-<!--            @close="infoWindow.show = false"-->
-<!--            @open="infoWindow.show = true">-->
-<!--          <div style="background-color: rgb(255, 255, 255, 0.2)">-->
-<!--            <p v-text="infoWindow.contents"></p>-->
-<!--          </div>-->
-<!--        </bm-info-window>-->
-      </bm-marker>
+      <bm-marker :position="{lng: lng, lat: lat}" :dragging="true" @click="infoWindow.show = true"></bm-marker>
     </baidu-map>
   </div>
 </template>

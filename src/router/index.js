@@ -35,6 +35,15 @@ const routes = [
     },
     component: () => import('../views/AccidentDetails.vue')
   }
+  ,
+  {
+    path: '/login',
+    name: 'Login',
+    meta: {
+      roles: ['admin', 'user']
+    },
+    component: () => import('../views/SelfLogin.vue')
+  }
 ]
 
 const router = createRouter({
