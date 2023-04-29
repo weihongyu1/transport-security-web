@@ -51,16 +51,38 @@ const router = createRouter({
   routes
 })
 
-const role = 'admin'
+// const role = sessionStorage.getItem('role')
+const role = 'user'
 
 router.beforeEach((to, from, next)=>{
-  if(to.meta.roles.includes(role)) {
-    next()
+  // 如果有token
+  const token = sessionStorage.getItem('token')
+  if (token !== null && token !== '') {
+    // 带有token访问登录页面跳转至主页
+    if(to.meta.roles.includes(role)) {
+      next()
+    } else {
+      Message['error']({
+        background: true,
+        content: '您还没有权限哦，请联系管理员！'
+      });
+    }
   } else {
-    Message['error']({
-      background: true,
-      content: '您还没有权限哦，请联系管理员！'
-    });
+    // 没有token
+    // 没有token访问登录页面允许
+    if (to.path === '/login') {
+      next()
+    } else {
+      // 没有token访问其他页面跳转至登录页面
+      Message['error']({
+        background: true,
+        content: '您还没有登录哦，请先登录！'
+      });
+      next({
+        path: '/login',
+        query: {redirect: to.fullPath}
+      })
+    }
   }
 })
 

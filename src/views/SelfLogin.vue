@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { login } from '@/api/userApi'
+
 export default {
   name: 'SelfLogin',
   data () {
@@ -23,12 +25,16 @@ export default {
     }
   },
   methods: {
-    handleSubmit (valid, { username, password, captcha }) {
+    handleSubmit (valid, { username, password }) {
       if (valid) {
-        this.$Modal.info({
-          title: '输入的内容如下：',
-          content: 'username: ' + username + ' | password: ' + password + ' | captcha: ' + captcha
-        });
+        login(username, password).then(res => {
+          console.log(res)
+          if (res.code === 200) {
+            console.log(res.data)
+            sessionStorage.setItem("token", res.data)
+            this.$router.replace({path: '/' })
+          }
+        })
       }
     },
     handleGetCaptcha () {

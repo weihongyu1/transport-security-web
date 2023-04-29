@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve --mode development",
+    "stage": "vue-cli-service build --mode staging",
+    "build": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "axios": "^1.4.0",
     "core-js": "^3.8.3",
     "echarts": "^5.4.2",
     "element-plus": "^2.3.3",
