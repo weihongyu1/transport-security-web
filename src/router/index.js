@@ -34,8 +34,7 @@ const routes = [
       roles: ['admin']
     },
     component: () => import('../views/AccidentDetails.vue')
-  }
-  ,
+  },
   {
     path: '/login',
     name: 'Login',
@@ -43,6 +42,14 @@ const routes = [
       roles: ['admin', 'user']
     },
     component: () => import('../views/SelfLogin.vue')
+  },
+  {
+    path: '/ss',
+    name: 'ss',
+    meta: {
+      roles: ['admin', 'user']
+    },
+    component: () => import('../components/charts/AxLineChart')
   }
 ]
 
@@ -52,7 +59,7 @@ const router = createRouter({
 })
 
 // const role = sessionStorage.getItem('role')
-const role = 'user'
+const role = 'admin'
 
 router.beforeEach((to, from, next)=>{
   // 如果有token

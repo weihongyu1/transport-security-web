@@ -22,7 +22,7 @@ import {Card} from "view-ui-plus";
 import AccidentList from "@/components/content/AccidentList";
 export default {
   name: "SelfContent",
-  components: {AccidentList, Card, EventProcessShow, TopNumberShow}
+  components: {AccidentList, Card, TopNumberShow, EventProcessShow}
 }
 </script>
 

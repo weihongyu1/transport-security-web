@@ -8,14 +8,18 @@
         </Breadcrumb>
         <Card>
           <div>
-            <Table border :columns="columns" :data="accidentList">
+            <div style="width: 100px; position: relative; left: 93%; margin-bottom: 20px">
+              <Button type="primary" @click="insertVehicle">新增</Button>
+            </div>
+            <Table border :columns="columns" :data="vehicleList">
               <template #name="{ row }">
                 <strong>{{ row.name }}</strong>
               </template>
               <template #type="{ row }">
-                <Tag color="error" v-if="row.vehicleType === '小汽车'">{{ row.vehicleType }}</Tag>
-                <Tag color="primary" v-if="row.vehicleType === '货运汽车'">{{ row.vehicleType }}</Tag>
-                <Tag color="success" v-if="row.vehicleType === '大型客车'">{{ row.vehicleType }}</Tag>
+                <Tag color="error" v-if="row.vehicleType === 1">小型汽车</Tag>
+                <Tag color="primary" v-if="row.vehicleType === 2">大型客车</Tag>
+                <Tag color="success" v-if="row.vehicleType === 3">小型货运汽车</Tag>
+                <Tag color="success" v-if="row.vehicleType === 4">大型货运汽车</Tag>
               </template>
               <template #action="{ row }">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="editVehicle(row)">编辑</Button>
@@ -23,7 +27,7 @@
               </template>
             </Table>
           </div>
-          <Page :total="total" :model-value="index" :page-size="pageSize" style="margin-top: 20px" />
+          <Page :total="total" :current="index" :page-size="pageSize" style="margin-top: 20px" @on-change="selectVehicles"/>
         </Card>
       </Content>
       <SelfFooter></SelfFooter>
@@ -48,7 +52,7 @@
         <Row :gutter="32">
           <Col span="12">
             <FormItem label="车牌号" label-position="top">
-              <Input v-model="vehicle.vehicleNumber" placeholder="车牌号" />
+              <Input v-model="vehicle.vehicleNumber" placeholder="车牌号"/>
             </FormItem>
           </Col>
         </Row>
@@ -56,15 +60,16 @@
           <Col span="12">
             <FormItem label="Owner" label-position="top">
               <Select v-model="vehicle.vehicleType" placeholder="车辆类型">
-                <Option value="小汽车">小汽车</Option>
-                <Option value="货运汽车">货运汽车</Option>
-                <Option value="大型客车">大型客车</Option>
+                <Option value="1">小型汽车</Option>
+                <Option value="2">大型客车</Option>
+                <Option value="3">小型货运汽车</Option>
+                <Option value="4">大型货运汽车</Option>
               </Select>
             </FormItem>
           </Col>
         </Row>
         <FormItem label="车辆描述" label-position="top">
-          <Input type="textarea" v-model="vehicle.vehicleDesc" :rows="4" placeholder="please enter the description"/>
+          <Input type="textarea" v-model="vehicle.vehicleDesc" placeholder="请输入车辆描述"/>
         </FormItem>
       </Form>
       <div class="demo-drawer-footer">
@@ -78,16 +83,22 @@
 <script>
 import SelfHeader from "@/components/SelfHeader";
 import SelfFooter from "@/components/SelfFooter";
+import {addVehicle, deleteVehicle, selectVehicles} from '@/api/VehicleApi'
+import {Message} from "view-ui-plus";
 
 export default {
   name: "VehicleList",
   components: {SelfFooter, SelfHeader},
+  created() {
+    this.selectVehicles(1)
+  },
   data() {
     return {
       // 分页
       total: 100,
-      index: 10,
+      index: 1,
       pageSize: 10,
+      row: 1,
       // 表格数据
       columns: [
         {
@@ -116,29 +127,7 @@ export default {
           align: 'center'
         }
       ],
-      accidentList: [
-        {
-          name: 'John Brown',
-          vehicleNumber: '甘A-38267',
-          vehicleType: '小汽车',
-          vehicleTime: '2023-03-04',
-          vehicleDesc: '小汽车'
-        },
-        {
-          name: 'John Brown',
-          vehicleNumber: '甘A-38267',
-          vehicleType: '货运汽车',
-          vehicleTime: '2023-03-05',
-          vehicleDesc: '货运汽车'
-        },
-        {
-          name: 'John Brown',
-          vehicleNumber: '甘A-38267',
-          vehicleType: '大型客车',
-          vehicleTime: '2023-03-06',
-          vehicleDesc: '大型客车'
-        },
-      ],
+      vehicleList: [],
       // 编辑车辆信息数据
       edit: false,
       styles: {
@@ -147,7 +136,8 @@ export default {
         paddingBottom: '53px',
         position: 'static'
       },
-      vehicle: {}
+      vehicle: {},
+      vehicelForm: {}
     }
   },
   methods: {
@@ -158,12 +148,50 @@ export default {
       })
     },
     resolve(row) {
-      console.log(row)
+      deleteVehicle(row.id).then(res => {
+        if (res.code === 200) {
+          Message['success']({
+            background: true,
+            content: '删除成功！'
+          });
+          location.reload()
+        } else {
+          Message['error']({
+            background: true,
+            content: res.msg
+          });
+        }
+      })
+    },
+    // 获取车辆信息列表
+    selectVehicles(index) {
+      this.index = index
+      this.vehicleList= []
+      selectVehicles(this.index, this.pageSize).then(res => {
+        if (res.code === 200) {
+          this.total = res.data.total
+          this.pageSize = res.data.count
+          this.index = res.data.index
+          for (let index in res.data.data) {
+            let vehicle = res.data.data[index]
+            let columnData = {
+              id: vehicle.id,
+              name: vehicle.vehicleOwner,
+              vehicleNumber: vehicle.vehicleNumber,
+              vehicleType: vehicle.vehicleType,
+              vehicleTime: vehicle.createTime,
+              vehicleDesc: vehicle.vehicleDesc
+            }
+            this.vehicleList.push(columnData)
+          }
+        }
+      })
     },
     // 编辑车辆信息方法
     editVehicle(row) {
       this.edit = true
       this.vehicle = {
+        id: row.id,
         name: row.name,
         vehicleNumber: row.vehicleNumber,
         vehicleType: row.vehicleType,
@@ -171,9 +199,27 @@ export default {
         vehicleDesc: row.vehicleDesc
       }
     },
+    insertVehicle() {
+      this.edit = true
+    },
     editVehicleSubmit() {
-      this.edit = false
-      console.log('提交')
+      this.vehicelForm = {
+        id: this.vehicle.id,
+        vehicleNumber: this.vehicle.vehicleNumber,
+        vehicleOwner: this.vehicle.name,
+        vehicleType: this.vehicle.vehicleType,
+        vehicleDesc: this.vehicle.vehicleDesc
+      }
+      addVehicle(this.vehicelForm).then(res => {
+        if (res.code === 200) {
+          Message['success']({
+            background: true,
+            content: '添加成功！'
+          });
+          this.edit = false
+          location.reload()
+        }
+      })
     }
   }
 }

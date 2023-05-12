@@ -12,14 +12,38 @@ import {BmMarker} from "vue-baidu-map-3x";
 export default {
   name: "BaiDUMap",
   components: {BmMarker},
+  props: {
+    lngP: {
+      type: String,
+      default: 'lng'
+    },
+    latP: {
+      type: String,
+      default: 'lat'
+    }
+  },
+  watch: {
+    lng: {
+      handler (val) {
+        this.lng = val
+      },
+      deep: true
+    },
+    lat: {
+      handler (val) {
+        this.lng = val
+      },
+      deep: true
+    },
+  },
   data() {
     return {
-      lng: 118.454,
-      lat: 32.955,
       infoWindow: {
         show: true,
         contents: '甘肃省兰州市'
       },
+      lng: 116.356266,
+      lat: 39.944315,
       mapStyle: {
         styleJson:
             [{

@@ -13,15 +13,15 @@
           <Icon type="ios-analytics"></Icon>
           车辆信息管理
         </MenuItem>
-        <MenuItem name="personal" v-if="login">
+        <MenuItem name="personal" v-if="name !== ''">
           <Icon type="ios-contact-outline" />
           {{ name }}
         </MenuItem>
-        <MenuItem name="login" v-if="!login">
+        <MenuItem name="login" v-if="name === ''">
           <Icon type="ios-paper"></Icon>
           登录
         </MenuItem>
-        <MenuItem name="register" v-if="!login">
+        <MenuItem name="register" v-if="name === ''">
           <Icon type="ios-paper"></Icon>
           注册
         </MenuItem>
@@ -36,7 +36,7 @@ export default {
   data() {
     return {
       login: true,
-      name: 'why'
+      name: sessionStorage.getItem("username")
     }
   },
   methods: {

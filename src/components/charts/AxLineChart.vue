@@ -1,35 +1,36 @@
 <template>
   <div class="echarts-box">
-    <div id="lineChart" :style="{ width: '100%', height: '100%' }"></div>
+    <div id="axLineChart" :style="{ width: '100%', height: '200px' }"></div>
   </div>
 </template>
 
 <script>
-import * as echarts from "echarts";
-import {onMounted, onUnmounted, watchEffect} from "vue";
+import * as echarts from 'echarts'
+import {accidentAx} from "@/api/AccidentApi";
 
 export default {
-  props:['date', 'value'],
-  name: "LineChart",
-  setup(props) {
-    /// 声明定义一下echart
-    let echart = echarts;
-
-    watchEffect(() => {
-      console.log(`date ` + props.date)
-    })
-
-    onMounted(() => {
-      initChart();
-    });
-
-    onUnmounted(() => {
-      echart.dispose;
-    });
-
-    // Echarts基础配置
-    function initChart() {
-      let chart = echart.init(document.getElementById("lineChart"));
+  name: "AxLineChart",
+  data() {
+    return {
+      date: [],
+      value: []
+    }
+  },
+  async created() {
+    await this.getAx()
+    this.initChart()
+  },
+  methods: {
+    async getAx() {
+      await accidentAx(1).then(res => {
+        if (res.code === 200) {
+          this.date = res.data.date
+          this.value = res.data.value
+        }
+      })
+    },
+    initChart() {
+      let chart = echarts.init(document.getElementById("axLineChart"));
       // 配置和数据
       chart.setOption({
         tooltip: {
@@ -40,7 +41,7 @@ export default {
         },
         title: {
           left: 'center',
-          text: '近30天车辆事故数据量'
+          text: 'Ax横向加速度变化'
         },
         toolbox: {
           feature: {
@@ -51,7 +52,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: props.date
+          data: this.date
         },
         yAxis: {
           type: 'value',
@@ -59,7 +60,7 @@ export default {
         },
         series: [
           {
-            name: '车辆事故数量',
+            name: '横向加速度',
             type: 'line',
             symbol: 'none',
             sampling: 'lttb',
@@ -78,16 +79,15 @@ export default {
                 }
               ])
             },
-            data: props.value
+            data: this.value
           }
         ]
       });
-      window.onresize = function() {
+      window.onresize = function () {
         //自适应大小
         chart.resize();
       };
     }
-    return { initChart };
   }
 }
 </script>

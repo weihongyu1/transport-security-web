@@ -2,17 +2,20 @@
   <Row :gutter="16">
     <Col span="8">
       <Card>
-        <Table :columns="alreadyColumns" :data="alreadyData"></Table>
+        <h3>已处理数据</h3>
+        <Table :columns="alreadyTableColumns" :data="alreadyData"></Table>
       </Card>
     </Col>
     <Col span="8">
       <Card>
-        <Table :columns="alreadyColumns" :data="alreadyData"></Table>
+        <h3>正在处理数据</h3>
+        <Table :columns="workingTableColumns" :data="workingData"></Table>
       </Card>
     </Col>
     <Col span="8">
       <Card>
-        <Table :columns="alreadyColumns" :data="alreadyData"></Table>
+        <h3>未处理数据</h3>
+        <Table :columns="noneTableColumns" :data="noneData"></Table>
       </Card>
     </Col>
   </Row>
@@ -20,12 +23,16 @@
 
 <script>
 import {Card} from "view-ui-plus";
+import {accidentHome} from "@/api/AccidentApi";
 export default {
   name: "AccidentList",
   components: {Card},
+  mounted() {
+    this.accidentHomeInfo()
+  },
   data () {
     return {
-      alreadyColumns: [
+      alreadyTableColumns: [
         {
           title: '日期',
           key: 'date',
@@ -34,82 +41,82 @@ export default {
         },
         {
           title: '车牌号',
-          key: 'name',
+          key: 'vehicleNumber',
           className: 'already'
         },
         {
           title: '伤情',
-          key: 'age',
-          className: 'already'
-        },
-        {
-          title: '处理状态',
-          key: 'address',
+          key: 'accidentLevel',
           className: 'already'
         }
       ],
-      alreadyData: [
+      workingTableColumns: [
         {
-          name: 'John Brown',
-          age: 18,
-          address: 'New York No. 1 Lake Park',
-          date: '2016-10-03'
+          title: '日期',
+          key: 'date',
+          sortable: true,
+          className: 'already'
         },
         {
-          name: 'Jim Green',
-          age: 24,
-          address: 'London No. 1 Lake Park',
-          date: '2016-10-01'
+          title: '车牌号',
+          key: 'vehicleNumber',
+          className: 'already'
         },
         {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
+          title: '伤情',
+          key: 'accidentLevel',
+          className: 'already'
         }
-      ]
+      ],
+      noneTableColumns: [
+        {
+          title: '日期',
+          key: 'date',
+          sortable: true,
+          className: 'already'
+        },
+        {
+          title: '车牌号',
+          key: 'vehicleNumber',
+          className: 'already'
+        },
+        {
+          title: '伤情',
+          key: 'accidentLevel',
+          className: 'already'
+        }
+      ],
+      alreadyData: [],
+      workingData: [],
+      noneData: []
+    }
+  },
+  methods: {
+    /**
+     * 获取首页事故信息
+     * @param state
+     * @param index
+     * @param limit
+     */
+    accidentInfo() {
+      accidentHome(0, 1, 10).then(res => {
+        if (res.code === 200) {
+          this.workingData = res.data
+        }
+      })
+      accidentHome(1, 1, 10).then(res => {
+        if (res.code === 200) {
+          this.alreadyData = res.data
+        }
+      })
+      accidentHome(2, 1, 10).then(res => {
+        if (res.code === 200) {
+          this.noneData = res.data
+        }
+      })
+    },
+    accidentHomeInfo() {
+      this.accidentInfo()
     }
   }
 }

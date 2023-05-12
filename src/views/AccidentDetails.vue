@@ -14,9 +14,15 @@
             <div style="margin: 20px;">
               <div style="font-weight: bold; margin-top: 5px">车辆信息</div>
               <div style="margin: 10px;">
-                <div style="margin-top: 10px">车主姓名: why</div>
-                <div style="margin-top: 10px">车牌号: 甘A-34605</div>
-                <div style="margin-top: 10px">车辆类型: 小汽车</div>
+                <div style="margin-top: 10px">车主姓名: {{ accidentVehicle.vehicleOwner }}</div>
+                <div style="margin-top: 10px">车牌号: {{ accidentVehicle.vehicleNumber }}</div>
+                <div style="margin-top: 10px">
+                  车辆类型:
+                  <Tag color="error" v-if="accidentVehicle.vehicleType === 1">小型汽车</Tag>
+                  <Tag color="primary" v-if="accidentVehicle.vehicleType === 2">大型客车</Tag>
+                  <Tag color="success" v-if="accidentVehicle.vehicleType === 3">小型货运汽车</Tag>
+                  <Tag color="success" v-if="accidentVehicle.vehicleType === 4">大型货运汽车</Tag>
+                </div>
               </div>
             </div>
           </div>
@@ -26,9 +32,9 @@
             <div style="margin: 10px;">
               <div style="font-weight: bold;margin-top: 5px">事故信息</div>
               <div style="margin: 10px;">
-                <div style="margin-top: 10px">驾驶员头部伤情: 严重损伤</div>
-                <div style="margin-top: 10px">安全气囊是否弹开: 弹开</div>
-                <div style="margin-top: 10px">事故时间: 2021-07-26 18:55:14</div>
+                <div style="margin-top: 10px">驾驶员头部伤情: {{ accidentDetails.degreeInjury }}</div>
+                <div style="margin-top: 10px">安全气囊是否弹开: {{ accidentDetails.isPop }}</div>
+                <div style="margin-top: 10px">事故时间: {{ accidentDetails.accidentDate }}</div>
               </div>
             </div>
           </div>
@@ -39,9 +45,9 @@
           <div style="margin: 10px;">
             <div style="font-weight: bold;margin-top: 5px">地址信息</div>
             <div style="margin: 10px;">
-              <div style="margin-top: 10px">经度: 121.48</div>
-              <div style="margin-top: 10px">纬度: 31.22</div>
-              <div style="margin-top: 10px">地址: 上海市黄浦区合肥路550号-淮海路,复兴中路,打浦桥</div>
+              <div style="margin-top: 10px">经度: {{ accidentAddress.lng }}</div>
+              <div style="margin-top: 10px">纬度: {{ accidentAddress.lat }}</div>
+              <div style="margin-top: 10px">地址: {{ accidentAddress.address }}</div>
             </div>
           </div>
         </div>
@@ -54,18 +60,21 @@
               <div style="margin: 10px;">
                 <Table :columns="columns" :data="data"></Table>
               </div>
-              <LineChart></LineChart>
+              <AxLineChart></AxLineChart>
+              <AyLineChart></AyLineChart>
               <div style="margin: 0 auto">
                 <div style="padding-bottom: 10px; text-align: center">
                   <Button type="success">数据下载</Button>
-                  <Button  style="margin-left: 30px" type="error">事故处理</Button>
+                  <Button v-if="accidentResolveState === 0"  style="margin-left: 30px" type="error" @click="updateAccidentState">事故处理</Button>
+                  <Button v-if="accidentResolveState === 1"  style="margin-left: 30px" type="error">已处理</Button>
+                  <Button v-if="accidentResolveState === 2"  style="margin-left: 30px" type="error" @click="endResolve">结束处理</Button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </Content>
-      <BaiDUMap></BaiDUMap>
+      <BaiDUMap :lng="lng" :lat="lat"></BaiDUMap>
       <SelfFooter></SelfFooter>
     </Layout>
   </div>
@@ -75,17 +84,38 @@
 import SelfHeader from "@/components/SelfHeader";
 import SelfFooter from "@/components/SelfFooter";
 import BaiDUMap from "@/components/accident/BaiDUMap";
-import LineChart from "@/components/charts/LineChart";
+import AxLineChart from "@/components/charts/AxLineChart";
+import AyLineChart from "@/components/charts/AyLineChart";
+import {
+  accidentAx,
+  accidentAy,
+  getAccidentAddress,
+  getAccidentDetails,
+  getAccidentVehicle,
+  updateAccidentState
+} from "@/api/AccidentApi";
+import {Message} from "view-ui-plus";
 
 export default {
   name: "AccidentDetails",
-  components: {BaiDUMap, SelfFooter, SelfHeader, LineChart},
+  components: {AyLineChart, AxLineChart, BaiDUMap, SelfFooter, SelfHeader},
   created() {
     this.create()
+    this.getAccidentVehicle()
+    this.getAccidentDetails()
+    this.getAccidentAddress()
+    this.getAcceleration()
   },
   data() {
     return {
       // 碰撞数据
+      accidentId: 1,
+      accidentVehicle: {},
+      accidentDetails: {},
+      accidentAddress: {},
+      accidentResolveState: 0,
+      lng: 0.00,
+      lat: 0.00,
       columns: [
         {
           title: '纵向加速度',
@@ -96,28 +126,92 @@ export default {
           key: 'ay'
         }
       ],
-      data: [
-        {
-          ax: -0.335,
-          ay: -0.14447
-        },
-        {
-          ax: -0.335,
-          ay: -0.14447
-        },
-        {
-          ax: '...',
-          ay: '...'
-        },
-      ]
+      data: []
     }
   },
   methods: {
     create() {
-      console.log(this.$route.query.id);
+      this.accidentId = this.$route.query.id;
     },
-    rowClassName() {
-      return 'demo-table-info-row';
+    getAccidentVehicle() {
+      getAccidentVehicle(this.accidentId).then(res => {
+        if (res.code === 200) {
+          this.accidentVehicle = res.data
+        }
+      })
+    },
+    getAccidentDetails() {
+      getAccidentDetails(this.accidentId).then(res => {
+        if (res.code === 200) {
+          this.accidentDetails = res.data
+          this.accidentResolveState = res.data.accidentState
+        }
+      })
+    },
+    getAccidentAddress() {
+      getAccidentAddress(this.accidentId).then(res => {
+        if (res.code === 200) {
+          this.accidentAddress = res.data
+          this.lng = res.data.lng
+          this.lat = res.data.lat
+        }
+      })
+    },
+    async getAcceleration() {
+      let axes
+      let ays
+      await accidentAx(this.accidentId).then(res => {
+        if (res.code === 200) {
+          axes = res.data.value
+        }
+      })
+      await accidentAy(this.accidentId).then(res => {
+        if (res.code === 200) {
+          ays = res.data.value
+        }
+      })
+      let columnData = {
+        ax: axes[0],
+        ay: ays[0]
+      }
+      this.data.push(columnData)
+      columnData = {
+        ax: '...',
+        ay: '...'
+      }
+      this.data.push(columnData)
+    },
+    updateAccidentState() {
+      updateAccidentState(2, this.accidentId).then(res => {
+        if (res.code === 200) {
+          Message['success']({
+            background: true,
+            content: '更新处理状态成功！'
+          });
+          this.accidentResolveState = 2
+        } else {
+          Message['error']({
+            background: true,
+            content: '更新处理状态失败！'
+          });
+        }
+      })
+    },
+    endResolve() {
+      updateAccidentState(1, this.accidentId).then(res => {
+        if (res.code === 200) {
+          Message['success']({
+            background: true,
+            content: '更新处理状态成功！'
+          });
+          this.accidentResolveState = 1
+        } else {
+          Message['error']({
+            background: true,
+            content: '更新处理状态失败！'
+          });
+        }
+      })
     }
   }
 }
