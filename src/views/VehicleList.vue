@@ -73,7 +73,7 @@
         </FormItem>
       </Form>
       <div class="demo-drawer-footer">
-        <Button style="margin-right: 8px" @click="edit = false">取消</Button>
+        <Button style="margin-right: 8px" @click="cancel">取消</Button>
         <Button type="primary" @click="editVehicleSubmit">添加</Button>
       </div>
     </Drawer>
@@ -220,6 +220,11 @@ export default {
           location.reload()
         }
       })
+    },
+    cancel() {
+      this.edit = false
+      this.vehicelForm = {}
+      this.vehicle = {}
     }
   }
 }

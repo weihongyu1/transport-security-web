@@ -38,6 +38,11 @@
       </Content>
       <SelfFooter></SelfFooter>
     </Layout>
+
+    <!-- 播放声音 -->
+    <audio v-if="music" autoplay="autoplay" id="bg-music">
+      <source src="../assets/warning.mp3" type="audio/mpeg" />
+    </audio>
   </div>
 </template>
 
@@ -53,6 +58,7 @@ export default {
     this.getAccidentInfo(1)
     setInterval(() => {
       this.getAccidentInfo(1)
+      this.music = false
     }, 10000)
   },
   data() {
@@ -61,6 +67,7 @@ export default {
       total: 100,
       index: 1,
       pageSize: 10,
+      music: false,
       // 表格相关数据
       resolveStatus: false,
       columns: [
@@ -122,6 +129,9 @@ export default {
               accidentAddress: accident.accidentAddress,
               accidentTime: accident.accidentDate,
               accidentStatus: accident.resolveState
+            }
+            if (accident.resolveState === 0) {
+              this.music = true
             }
             this.accidentList.push(columnData)
           }
