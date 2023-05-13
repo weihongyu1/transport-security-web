@@ -6,7 +6,6 @@
 
 <script>
 import * as echarts from 'echarts'
-import {accidentAy} from "@/api/AccidentApi";
 
 export default {
   name: "AyLineChart",
