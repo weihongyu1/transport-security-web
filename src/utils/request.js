@@ -25,6 +25,14 @@ request.interceptors.request.use(config => {
 request.interceptors.response.use(
     response => {
         let res = response.data;
+        // 如果是返回的文件
+        if (response.config.responseType === 'blob') {
+            return res
+        }
+        // 兼容服务端返回的字符串数据
+        if (typeof res === 'string') {
+            res = res ? JSON.parse(res) : res
+        }
         if (res.code === 403) {
             // 没有token访问其他页面跳转至登录页面
             Message['error']({
@@ -43,14 +51,6 @@ request.interceptors.response.use(
                 background: true,
                 content: '后端接口异常，请稍后重试！'
             });
-        }
-        // 如果是返回的文件
-        if (response.config.responseType === 'blob') {
-            return res
-        }
-        // 兼容服务端返回的字符串数据
-        if (typeof res === 'string') {
-            res = res ? JSON.parse(res) : res
         }
         return res;
     },

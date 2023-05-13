@@ -6,30 +6,32 @@
 
 <script>
 import * as echarts from 'echarts'
-import {accidentAx} from "@/api/AccidentApi";
 
 export default {
   name: "AxLineChart",
+  props: {
+    axes: {
+      type: String,
+      default: ''
+    }
+  },
+  watch: {
+    axes: {
+      handler (val) {
+        this.axList = val
+        this.initChart(val)
+      },
+      deep: true
+    }
+  },
   data() {
     return {
       date: [],
-      value: []
+      axList: []
     }
   },
-  async created() {
-    await this.getAx()
-    this.initChart()
-  },
   methods: {
-    async getAx() {
-      await accidentAx(1).then(res => {
-        if (res.code === 200) {
-          this.date = res.data.date
-          this.value = res.data.value
-        }
-      })
-    },
-    initChart() {
+    initChart(val) {
       let chart = echarts.init(document.getElementById("axLineChart"));
       // 配置和数据
       chart.setOption({
@@ -79,7 +81,7 @@ export default {
                 }
               ])
             },
-            data: this.value
+            data: val
           }
         ]
       });

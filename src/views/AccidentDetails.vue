@@ -60,11 +60,11 @@
               <div style="margin: 10px;">
                 <Table :columns="columns" :data="data"></Table>
               </div>
-              <AxLineChart></AxLineChart>
-              <AyLineChart></AyLineChart>
+              <AxLineChart :axes="axList"></AxLineChart>
+              <AyLineChart :ays="ayList"></AyLineChart>
               <div style="margin: 0 auto">
                 <div style="padding-bottom: 10px; text-align: center">
-                  <Button type="success">数据下载</Button>
+                  <Button type="success" @click="accidentDownLoad">数据下载</Button>
                   <Button v-if="accidentResolveState === 0"  style="margin-left: 30px" type="error" @click="updateAccidentState">事故处理</Button>
                   <Button v-if="accidentResolveState === 1"  style="margin-left: 30px" type="error">已处理</Button>
                   <Button v-if="accidentResolveState === 2"  style="margin-left: 30px" type="error" @click="endResolve">结束处理</Button>
@@ -88,7 +88,7 @@ import AxLineChart from "@/components/charts/AxLineChart";
 import AyLineChart from "@/components/charts/AyLineChart";
 import {
   accidentAx,
-  accidentAy,
+  accidentAy, download,
   getAccidentAddress,
   getAccidentDetails,
   getAccidentVehicle,
@@ -100,7 +100,7 @@ export default {
   name: "AccidentDetails",
   components: {AyLineChart, AxLineChart, BaiDUMap, SelfFooter, SelfHeader},
   created() {
-    this.create()
+    this.accidentId = this.$route.query.id;
     this.getAccidentVehicle()
     this.getAccidentDetails()
     this.getAccidentAddress()
@@ -114,6 +114,8 @@ export default {
       accidentDetails: {},
       accidentAddress: {},
       accidentResolveState: 0,
+      axList: [],
+      ayList: [],
       lng: 0.00,
       lat: 0.00,
       columns: [
@@ -163,11 +165,13 @@ export default {
       await accidentAx(this.accidentId).then(res => {
         if (res.code === 200) {
           axes = res.data.value
+          this.axList = res.data.value
         }
       })
       await accidentAy(this.accidentId).then(res => {
         if (res.code === 200) {
           ays = res.data.value
+          this.ayList = res.data.value
         }
       })
       let columnData = {
@@ -211,6 +215,21 @@ export default {
             content: '更新处理状态失败！'
           });
         }
+      })
+    },
+    accidentDownLoad() {
+      download(this.accidentId).then(res => {
+        let blob = new Blob([res], {type: 'application/vnd.ms-excel'});
+        console.log(blob)
+        let downloadElement = document.createElement('a');
+        let href = window.URL.createObjectURL(blob); //创建下载的链接
+        console.log(href)
+        downloadElement.href = href;
+        downloadElement.setAttribute('download', this.accidentVehicle.vehicleNumber)
+        document.body.appendChild(downloadElement);
+        downloadElement.click(); //点击下载
+        document.body.removeChild(downloadElement); //下载完成移除元素
+        window.URL.revokeObjectURL(href); //释放掉blob对象
       })
     }
   }

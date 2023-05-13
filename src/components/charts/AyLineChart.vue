@@ -10,26 +10,29 @@ import {accidentAy} from "@/api/AccidentApi";
 
 export default {
   name: "AyLineChart",
+  props: {
+    ays: {
+      type: String,
+      default: ''
+    }
+  },
+  watch: {
+    ays: {
+      handler (val) {
+        this.ayList = val
+        this.initChart(val)
+      },
+      deep: true
+    }
+  },
   data() {
     return {
       date: [],
-      value: []
+      ayList: []
     }
   },
-  async created() {
-    await this.getAy()
-    this.initChart()
-  },
   methods: {
-    async getAy() {
-      await accidentAy(1).then(res => {
-        if (res.code === 200) {
-          this.date = res.data.date
-          this.value = res.data.value
-        }
-      })
-    },
-    initChart() {
+    initChart(val) {
       let chart = echarts.init(document.getElementById("ayLineChart"));
       // 配置和数据
       chart.setOption({
@@ -79,7 +82,7 @@ export default {
                 }
               ])
             },
-            data: this.value
+            data: val
           }
         ]
       });

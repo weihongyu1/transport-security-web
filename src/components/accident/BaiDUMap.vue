@@ -26,12 +26,14 @@ export default {
     lng: {
       handler (val) {
         this.lng = val
+        console.log(this.lng)
       },
       deep: true
     },
     lat: {
       handler (val) {
-        this.lng = val
+        this.lat = val
+        console.log(this.lat)
       },
       deep: true
     },

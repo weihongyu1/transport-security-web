@@ -107,3 +107,15 @@ export function updateAccidentState(state, accidentId) {
         }
     })
 }
+
+// 文件下载
+export function download(accidentId) {
+    return request({
+        url: '/accident/download',
+        method: 'get',
+        params: {
+            accidentId
+        },
+        responseType: 'blob'
+    })
+}
