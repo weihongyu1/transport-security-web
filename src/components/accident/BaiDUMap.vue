@@ -23,14 +23,14 @@ export default {
     }
   },
   watch: {
-    lng: {
+    lngP: {
       handler (val) {
         this.lng = val
         console.log(this.lng)
       },
       deep: true
     },
-    lat: {
+    latP: {
       handler (val) {
         this.lat = val
         console.log(this.lat)

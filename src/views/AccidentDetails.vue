@@ -74,7 +74,7 @@
           </div>
         </div>
       </Content>
-      <BaiDUMap :lng="lng" :lat="lat"></BaiDUMap>
+      <BaiDUMap :lngP="lng" :latP="lat"></BaiDUMap>
       <SelfFooter></SelfFooter>
     </Layout>
   </div>
