@@ -28,11 +28,10 @@ export default {
     handleSubmit (valid, { username, password }) {
       if (valid) {
         login(username, password).then(res => {
-          console.log(res)
           if (res.code === 200) {
-            console.log(res.data)
             sessionStorage.setItem("token", res.data)
             this.$router.replace({path: '/' })
+            sessionStorage.setItem("username", username)
           }
         })
       }

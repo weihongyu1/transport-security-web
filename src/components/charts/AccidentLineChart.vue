@@ -1,35 +1,36 @@
 <template>
   <div class="echarts-box">
-    <div id="lineChart" :style="{ width: '100%', height: '100%' }"></div>
+    <div id="lineChart" :style="{ width: '100%', height: '300px' }"></div>
   </div>
 </template>
 
 <script>
-import * as echarts from "echarts";
-import {onMounted, onUnmounted, watchEffect} from "vue";
+import * as echarts from 'echarts'
+import {accidentTrend} from "@/api/AccidentApi";
 
 export default {
-  props:['date', 'value'],
-  name: "LineChart",
-  setup(props) {
-    /// 声明定义一下echart
-    let echart = echarts;
-
-    watchEffect(() => {
-      console.log(`date ` + props.date)
-    })
-
-    onMounted(() => {
-      initChart();
-    });
-
-    onUnmounted(() => {
-      echart.dispose;
-    });
-
-    // Echarts基础配置
-    function initChart() {
-      let chart = echart.init(document.getElementById("lineChart"));
+  name: "AccidentLineChart",
+  data() {
+    return {
+      date: [],
+      value: []
+    }
+  },
+  async created() {
+    await this.getTrend()
+    this.initChart()
+  },
+  methods: {
+    async getTrend() {
+      await accidentTrend().then(res => {
+        if (res.code === 200) {
+          this.date = res.data.date
+          this.value = res.data.value
+        }
+      })
+    },
+    initChart() {
+      let chart = echarts.init(document.getElementById("lineChart"));
       // 配置和数据
       chart.setOption({
         tooltip: {
@@ -51,7 +52,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: props.date
+          data: this.date
         },
         yAxis: {
           type: 'value',
@@ -78,16 +79,15 @@ export default {
                 }
               ])
             },
-            data: props.value
+            data: this.value
           }
         ]
       });
-      window.onresize = function() {
+      window.onresize = function () {
         //自适应大小
         chart.resize();
       };
     }
-    return { initChart };
   }
 }
 </script>

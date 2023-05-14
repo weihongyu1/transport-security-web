@@ -1,35 +1,38 @@
 <template>
   <div class="echarts-box">
-    <div id="lineChart" :style="{ width: '100%', height: '100%' }"></div>
+    <div id="ayLineChart" :style="{ width: '100%', height: '200px' }"></div>
   </div>
 </template>
 
 <script>
-import * as echarts from "echarts";
-import {onMounted, onUnmounted, watchEffect} from "vue";
+import * as echarts from 'echarts'
 
 export default {
-  props:['date', 'value'],
-  name: "LineChart",
-  setup(props) {
-    /// 声明定义一下echart
-    let echart = echarts;
-
-    watchEffect(() => {
-      console.log(`date ` + props.date)
-    })
-
-    onMounted(() => {
-      initChart();
-    });
-
-    onUnmounted(() => {
-      echart.dispose;
-    });
-
-    // Echarts基础配置
-    function initChart() {
-      let chart = echart.init(document.getElementById("lineChart"));
+  name: "AyLineChart",
+  props: {
+    ays: {
+      type: String,
+      default: ''
+    }
+  },
+  watch: {
+    ays: {
+      handler (val) {
+        this.ayList = val
+        this.initChart(val)
+      },
+      deep: true
+    }
+  },
+  data() {
+    return {
+      date: [],
+      ayList: []
+    }
+  },
+  methods: {
+    initChart(val) {
+      let chart = echarts.init(document.getElementById("ayLineChart"));
       // 配置和数据
       chart.setOption({
         tooltip: {
@@ -40,7 +43,7 @@ export default {
         },
         title: {
           left: 'center',
-          text: '近30天车辆事故数据量'
+          text: 'Ay纵向加速度变化'
         },
         toolbox: {
           feature: {
@@ -51,7 +54,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: props.date
+          data: this.date
         },
         yAxis: {
           type: 'value',
@@ -59,7 +62,7 @@ export default {
         },
         series: [
           {
-            name: '车辆事故数量',
+            name: '纵向加速度',
             type: 'line',
             symbol: 'none',
             sampling: 'lttb',
@@ -78,16 +81,15 @@ export default {
                 }
               ])
             },
-            data: props.value
+            data: val
           }
         ]
       });
-      window.onresize = function() {
+      window.onresize = function () {
         //自适应大小
         chart.resize();
       };
     }
-    return { initChart };
   }
 }
 </script>

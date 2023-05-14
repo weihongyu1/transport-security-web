@@ -1,14 +1,14 @@
 <template>
   <div>
-    <LineChart></LineChart>
+    <AccidentLineChart></AccidentLineChart>
   </div>
 </template>
 
 <script>
-import LineChart from "@/components/charts/LineChart";
+import AccidentLineChart from "@/components/charts/AccidentLineChart";
 export default {
   name: "EventProcessShow",
-  components: {LineChart}
+  components: {AccidentLineChart},
 }
 </script>
 
